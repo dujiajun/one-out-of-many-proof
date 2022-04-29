@@ -9,6 +9,7 @@ import {
   toBN10,
 } from "../src/primitives";
 import { Exponent, GroupElement } from "../src/types";
+import crypto from "crypto";
 
 test("pedersen commitment", () => {
   const g: GroupElement = curve.point(
@@ -77,4 +78,16 @@ test("convertToNal", () => {
     const I = convertToNal(i, n, m);
     expect(I[0] + I[1] * n).toBe(i);
   }
+});
+
+test("hash", () => {
+  const hash1 = crypto.createHash("sha256");
+  const hash2 = crypto.createHash("sha256");
+  const msgs = ["11", "22", "33"];
+  const msg = msgs.join("");
+  msgs.forEach((item) => {
+    hash1.update(item);
+  });
+  hash2.update(msg);
+  expect(hash1.digest("hex")).toEqual(hash2.digest("hex"));
 });

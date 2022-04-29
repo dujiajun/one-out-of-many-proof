@@ -2,6 +2,7 @@ import { Exponent, GroupElement } from "./types";
 import crypto from "crypto";
 import BN from "bn.js";
 import params, { curve } from "./params";
+import { representate } from "./serialize";
 
 export function toBN10(str: string) {
   return new BN(str, 10);
@@ -54,8 +55,8 @@ export function randomGroupElement(): GroupElement {
 
 export function generateChallenge(group_elements: GroupElement[]): Exponent {
   const sha256 = crypto.createHash("sha256");
-  group_elements.forEach((item, index) => {
-    sha256.update(item.encode("hex", false));
+  group_elements.forEach((item) => {
+    sha256.update(representate(item));
   });
   const result_out = new BN(sha256.digest("hex"), "hex").toRed(params.p);
   return result_out;
