@@ -1,7 +1,7 @@
 import { Exponent, GroupElement } from "./types";
 import crypto from "crypto";
 import BN from "bn.js";
-import params, { curve } from "./params";
+import params, { curve, ec } from "./params";
 import { representate } from "./serialize";
 
 export function toBN10(str: string) {
@@ -39,18 +39,13 @@ export function commitBits(
 }
 
 export function randomExponent(): Exponent {
-  return new BN(crypto.randomBytes(32), "hex");
+  const keyPair = ec.genKeyPair();
+  return keyPair.getPrivate();
 }
 
 export function randomGroupElement(): GroupElement {
-  while (true) {
-    try {
-      const x = new BN(crypto.randomBytes(32), "hex");
-      return curve.pointFromX(x);
-    } catch (error) {
-      continue;
-    }
-  }
+  const keyPair = ec.genKeyPair();
+  return keyPair.getPublic() as GroupElement;
 }
 
 export function generateChallenge(group_elements: GroupElement[]): Exponent {
