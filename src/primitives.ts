@@ -1,8 +1,9 @@
 import { Exponent, GroupElement } from "./types";
 import crypto from "crypto";
 import BN from "bn.js";
-import params, { curve, ec } from "./params";
-import { representate } from "./serialize";
+import params, { ec } from "./params";
+import { serialize } from "./serialize";
+import Web3 from "web3";
 
 export function toBN10(str: string) {
   return new BN(str, 10);
@@ -49,11 +50,18 @@ export function randomGroupElement(): GroupElement {
 }
 
 export function generateChallenge(group_elements: GroupElement[]): Exponent {
-  const sha256 = crypto.createHash("sha256");
-  group_elements.forEach((item) => {
-    sha256.update(representate(item));
+  const mapped_params = group_elements.map((elem) => {
+    return serialize(elem);
   });
-  const result_out = new BN(sha256.digest("hex"), "hex").toRed(params.p);
+
+  const web3 = new Web3();
+  const encoded = web3.eth.abi.encodeParameters(
+    ["struct(bytes32,bytes32)[]"],
+    [mapped_params]
+  );
+  const sha256 = crypto.createHash("sha256");
+  sha256.update(encoded);
+  const result_out = new BN(sha256.digest(), "hex").toRed(params.p);
   return result_out;
 }
 
