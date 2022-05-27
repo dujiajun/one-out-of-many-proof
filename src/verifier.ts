@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { zero } from "./params";
+import { curve, q, zero } from "./params";
 import {
   commit,
   commitBits,
@@ -79,7 +79,7 @@ export class R1Verifier {
         tmp = tmp.add(f[j * k + i]);
         f_out.push(f[j * k + i]);
       }
-      f_out[j * this.n] = challenge_x.sub(tmp);
+      f_out[j * this.n] = challenge_x.sub(tmp).add(curve.n).mod(curve.n);
     }
     console.log("before R1 verify one");
     const one = commitBits(this.g, this.h, f_out, proof.ZA);
@@ -88,9 +88,10 @@ export class R1Verifier {
       return false;
     }
 
-    const f_outprime = new Array<Exponent>();
+    const f_outprime = new Array<Exponent>(f_out.length);
     for (let i = 0; i < f_out.length; i++) {
-      f_outprime.push(f_out[i].mul(challenge_x.sub(f_out[i])));
+      const exp: Exponent = challenge_x.sub(f_out[i]).add(curve.n).mod(curve.n);
+      f_outprime[i] = f_out[i].mul(exp).mod(curve.n);
     }
     console.log("before R1 verify two");
     const two = commitBits(this.g, this.h, f_outprime, proof.ZC);
