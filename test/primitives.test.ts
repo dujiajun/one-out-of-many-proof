@@ -91,7 +91,24 @@ test("commitBits", () => {
   const committed = commitBits(g, [f, h], exps, r);
   const expected: GroupElement = curve.point("ce3ee0219f20d53c1b45d8d3e8fb638af4b180c4a8b4467097ccb489a2d0d603", "d54618af30dfe5a24f516a6b57809926c618fb0cb6fe6431176b732e4c1e1c0c")
   expect(expected.eq(committed)).toBeTruthy();
-})
+});
+
+
+test("commitZero", () => {
+  const g = curve.g;
+  const h = curve.point(
+    "d67dedde7f8861e5a99c0e30e06594997e85da6604ceffd429c69bf9d1d5b4d7",
+    "77f0f57c3757fc327265bf588cf1ddef2ca35b1445e9374e44ca710301bd9b61"
+  );
+
+  const x: Exponent = new BN(0);
+  const r: Exponent = new BN(10);
+  const committed = commit(g, x, h, r);
+  const expected: GroupElement = h.mul(r);
+  expect(expected.eq(committed)).toBeTruthy();
+
+});
+
 
 test("homomorphic", () => {
   const h: GroupElement = randomGroupElement();
