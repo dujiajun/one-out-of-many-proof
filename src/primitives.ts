@@ -61,7 +61,7 @@ export function generateChallenge(group_elements: GroupElement[]): Exponent {
   );
   const sha256 = crypto.createHash("sha256");
   sha256.update(encoded);
-  const result_out = new BN(sha256.digest(), "hex").toRed(params.p);
+  const result_out = new BN(sha256.digest(), "hex");
   return result_out;
 }
 
